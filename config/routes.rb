@@ -3,8 +3,12 @@ Rails.application.routes.draw do
   
   namespace :api do 
     namespace :v1 do
-      get "products", to: "products#index"
-      get "users", to: "users#index"
+      resources :users do
+        collection do
+          delete 'truncate', to: 'users#delete_all' # todo - remove later
+        end
+      end
+      resources :products
     end
   end
 end
