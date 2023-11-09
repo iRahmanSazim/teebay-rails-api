@@ -1,6 +1,14 @@
 class Api::V1::ProductsController < ApplicationController
   before_action :set_product, only: %i[ show update destroy ]
 
+  # todo - remove later
+  def delete_all
+    @products = Product.all
+    @products.destroy_all
+
+    render json: {message: 'All products deleted'}
+  end
+
   # GET /products
   def index
     @products = Product.all

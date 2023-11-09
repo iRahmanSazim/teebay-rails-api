@@ -8,7 +8,11 @@ Rails.application.routes.draw do
           delete 'truncate', to: 'users#delete_all' # todo - remove later
         end
       end
-      resources :products
+      resources :products do
+        collection do
+          delete 'truncate', to: 'products#delete_all' # todo - remove later
+        end
+      end
     end
   end
 end
