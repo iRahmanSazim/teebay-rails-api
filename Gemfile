@@ -7,6 +7,10 @@ gem "rack-cors"
 gem "bootsnap", require: false
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
+gem "devise"
+gem "devise-jwt"
+gem "jsonapi-serializer"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 
