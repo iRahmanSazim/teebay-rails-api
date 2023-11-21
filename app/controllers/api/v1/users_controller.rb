@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :set_user, only: %i[ show update destroy ]
+  before_action :doorkeeper_authorize!, except: [:login, :create]
 
   # todo - remove later
   def delete_all
@@ -12,7 +12,7 @@ class Api::V1::UsersController < ApplicationController
   def login 
     @user = User.find_by(email: params[:email])
     if @user && @user.authenticate(params[:password])
-      render json: {message: 'Login successful', user: @user}
+      render json: @user
     else
       render json: {message: 'Invalid Credentials'}
     end
@@ -32,27 +32,29 @@ class Api::V1::UsersController < ApplicationController
   # POST /users
   def create
     @user = User.new(user_params)
-    puts ()
+    client_id = params[:client_id] || Doorkeeper::Application.find_by(name: 'Postman').uid
+    client_app = Doorkeeper::Application.find_by(uid: client_id)
+    return render(json: { error: 'Invalid client ID'}, status: 403) unless client_app
 
     if @user.save
-      render json: @user, status: :created, location: api_v1_user_url(@user)
+      access_token = Doorkeeper::AccessToken.create(
+          resource_owner_id: @user.id,
+          application_id: client_app.id,
+          refresh_token: generate_refresh_token,
+          expires_in: Doorkeeper.configuration.access_token_expires_in.to_i,
+          scopes: ''
+        )
+      render json: {
+        user: {
+          id: @user.id,
+          email: @user.email,
+          access_token: access_token.token,
+          refresh_token: access_token.refresh_token,
+          expires_in: access_token.expires_in,
+        }}, status: :created, location: api_v1_user_url(@user)
     else
       render json: @user.errors, status: :unprocessable_entity
     end
-  end
-
-  # PATCH/PUT /users/1
-  def update
-    if @user.update(user_params)
-      render json: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
-    end
-  end
-
-  # DELETE /users/1
-  def destroy
-    @user.destroy!
   end
 
   private
@@ -62,5 +64,12 @@ class Api::V1::UsersController < ApplicationController
 
     def user_params
       params.permit(:user_name, :email, :password)
+    end
+
+    def generate_refresh_token
+      loop do
+        token = SecureRandom.hex(32)
+        break token unless Doorkeeper::AccessToken.exists?(refresh_token: token)
+      end
     end
 end

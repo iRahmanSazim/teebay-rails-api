@@ -24,3 +24,6 @@ group :development do
 
 end
 
+
+gem "doorkeeper", "~> 5.6"
+gem "panko_serializer", "~> 0.8.1"
