@@ -1,6 +1,8 @@
 class Api::V1::ProductsController < ApplicationController
-  before_action :set_product, only: %i[ show update destroy ]
-
+  include Panko
+  before_action :doorkeeper_authorize!
+  before_action :set_product, only: [:show, :update, :destroy]
+  
   # todo - remove later
   def delete_all
     @products = Product.all
@@ -12,13 +14,13 @@ class Api::V1::ProductsController < ApplicationController
   # GET /products
   def index
     @products = Product.all
-
-    render json: @products
+    render json: ArraySerializer.new(@products, each_serializer: ProductSerializer).to_json
   end
 
   # GET /products/1
   def show
-    render json: @product
+    @product = Product.find(params[:id])
+    render json: ProductSerializer.new.serialize(@product).to_json
   end
 
   # POST /products
@@ -26,7 +28,7 @@ class Api::V1::ProductsController < ApplicationController
     @product = Product.new(product_params)
 
     if @product.save
-      render json: @product, status: :created, location: api_v1_product_url(@product)
+      render json: ProductSerializer.new.serialize(@product).to_json, status: :created, location: api_v1_product_url(@product)
     else
       render json: @product.errors, status: :unprocessable_entity
     end
@@ -34,25 +36,25 @@ class Api::V1::ProductsController < ApplicationController
 
   # PATCH/PUT /products/1
   def update
+    @product = Product.find(params[:id])
     if @product.update(product_params)
       render json: @product
     else
       render json: @product.errors, status: :unprocessable_entity
     end
   end
-
+  
   # DELETE /products/1
   def destroy
+    @product = Product.find(params[:id])
     @product.destroy!
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_product
       @product = Product.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def product_params
       params.require(:product).permit(:title, :description, :price, :user_id)
     end

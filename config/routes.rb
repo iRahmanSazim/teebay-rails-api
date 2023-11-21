@@ -9,7 +9,7 @@ Rails.application.routes.draw do
       resources :users do
         collection do
           post 'login', to: 'users#login'
-          delete 'truncate', to: 'users#delete_all' # todo - remove later
+          delete 'truncate', to: 'users#truncate' # todo - remove later
         end
       end
       resources :products do
