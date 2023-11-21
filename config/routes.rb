@@ -3,12 +3,9 @@ Rails.application.routes.draw do
   
   namespace :api do 
     namespace :v1 do
-      resources :users, module: 'users' do
-        devise_for :users, controllers: {
-          registrations: 'api/v1/users/registrations',
-          sessions: 'api/v1/users/sessions',
-        }
+      resources :users do
         collection do
+          post 'login', to: 'users#login'
           delete 'truncate', to: 'users#delete_all' # todo - remove later
         end
       end
