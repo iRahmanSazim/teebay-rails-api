@@ -3,9 +3,9 @@ class Api::V1::ProductsController < ApplicationController
   before_action :doorkeeper_authorize!
   before_action :set_product, only: [:show, :update, :destroy]
   
-  # todo - remove later
-  def delete_all
+  def truncate
     @products = Product.all
+    authorize @products
     @products.destroy_all
 
     render json: {message: 'All products deleted'}
@@ -14,18 +14,21 @@ class Api::V1::ProductsController < ApplicationController
   # GET /products
   def index
     @products = Product.all
+    authorize @products
     render json: ArraySerializer.new(@products, each_serializer: ProductSerializer).to_json
   end
 
   # GET /products/1
   def show
-    @product = Product.find(params[:id])
+    authorize @product
     render json: ProductSerializer.new.serialize(@product).to_json
   end
 
   # POST /products
   def create
-    @product = Product.new(product_params)
+    product = {user_id: current_user.id}.merge(product_params)
+    @product = Product.new(product)
+    authorize @product
 
     if @product.save
       render json: ProductSerializer.new.serialize(@product).to_json, status: :created, location: api_v1_product_url(@product)
@@ -34,9 +37,8 @@ class Api::V1::ProductsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /products/1
   def update
-    @product = Product.find(params[:id])
+    authorize @product
     if @product.update(product_params)
       render json: @product
     else
@@ -44,10 +46,10 @@ class Api::V1::ProductsController < ApplicationController
     end
   end
   
-  # DELETE /products/1
   def destroy
-    @product = Product.find(params[:id])
+    authorize @product
     @product.destroy!
+    render json: {message: 'Product deleted'}
   end
 
   private
@@ -56,6 +58,6 @@ class Api::V1::ProductsController < ApplicationController
     end
 
     def product_params
-      params.require(:product).permit(:title, :description, :price, :user_id)
+      params.require(:product).permit(:title, :description, :price)
     end
 end

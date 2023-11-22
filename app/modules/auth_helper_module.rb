@@ -1,4 +1,4 @@
-module UserAuthModule
+module AuthHelperModule
   def generate_refresh_token
     loop do
       token = SecureRandom.hex(32)
@@ -15,7 +15,7 @@ module UserAuthModule
     end
   end
 
-  def create_access_token()
+  def create_access_token
     Doorkeeper::AccessToken.create(
       resource_owner_id: @user.id,
       application_id: @client_app.id,
