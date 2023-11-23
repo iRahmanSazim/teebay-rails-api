@@ -17,6 +17,13 @@ Rails.application.routes.draw do
           delete 'truncate', to: 'products#truncate'
         end
       end
+      resources :conversations do 
+        collection do
+          get 'my_conversations', to: 'conversations#find_by_user'
+          get '/:id/messages', to: 'conversations#find_messages_by_conversation'
+        end
+      end
+      resources :messages
     end
   end
 end

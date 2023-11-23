@@ -1,9 +1,9 @@
 class ProductPolicy < ApplicationPolicy
-  attr_reader :user, :record
+  attr_reader :user, :product
 
-  def initialize(user, record)
+  def initialize(user, product)
     @user = user
-    @record = record 
+    @product = product 
   end
 
   def index?
@@ -19,11 +19,11 @@ class ProductPolicy < ApplicationPolicy
   end
 
   def update?
-    !!user && user.id == record.user_id || user.is_admin?
+    !!user && user.id == product.user_id || user.is_admin?
   end
 
   def destroy?
-    !!user && user.id == record.user_id || user.is_admin
+    !!user && user.id == product.user_id || user.is_admin
   end
 
   def truncate?

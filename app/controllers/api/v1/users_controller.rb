@@ -14,7 +14,6 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
-    logger.info("user -> #{@current_user}")
     @users = User.all
     authorize @users
     render json: ArraySerializer.new(@users, each_serializer: UserSerializer).to_json
