@@ -1,8 +1,9 @@
 class MessagePolicy < ApplicationPolicy
-  attr_reader :user
-
-  def initialize(user)
+  attr_reader :user, :message
+  
+  def initialize(user, message)
     @user = user
+    @message = message
   end
 
   def create?

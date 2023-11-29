@@ -24,6 +24,7 @@ Rails.application.routes.draw do
         end
       end
       resources :messages
+      mount ActionCable.server => '/cable'
     end
   end
 end

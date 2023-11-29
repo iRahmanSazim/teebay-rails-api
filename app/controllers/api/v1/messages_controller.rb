@@ -13,6 +13,7 @@ class Api::V1::MessagesController < ApplicationController
     authorize @message
 
     if @message.save
+      SendMessagesJob.perform_now(@message.conversation_id, MessageSerializer.new.serialize(@message).to_json)
       render json: MessageSerializer.new.serialize(@message).to_json, status: :created, location: api_v1_message_url(@message)
     else
       render json: @message.errors, status: :unprocessable_entity
@@ -21,6 +22,6 @@ class Api::V1::MessagesController < ApplicationController
 
   private
   def message_params
-    params.permit(:conversation_id, :body)
+    params.require(:message).permit(:conversation_id, :body)
   end
 end

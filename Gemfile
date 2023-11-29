@@ -29,3 +29,5 @@ gem "doorkeeper", "~> 5.6"
 gem "panko_serializer", "~> 0.8.1"
 
 gem "pundit", "~> 2.3"
+
+gem "redis", "~> 5.0"
